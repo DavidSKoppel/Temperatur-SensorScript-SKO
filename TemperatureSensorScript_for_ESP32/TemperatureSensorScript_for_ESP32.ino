@@ -14,7 +14,7 @@ DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
 
 //Variables
 float humi;  // Stores humidity value
-float temp; // Stores temperature value
+float temp = -273; // Stores temperature value, is sat at this beginning temp so it fires of immediately upon startup
 String hostName = "mu7-5";
 String ipAddress;
 const char* apiService = "http://infotavle.itd-skp.sde.dk/TH_API/ClimateSensor_Api/api/climateSensor/create.php";
@@ -46,9 +46,9 @@ void InitWifi() {
   Serial.print("Connecting to WiFi ..");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print('.');
-    digitalWrite(LED_BUILTIN, LOW); 
+    digitalWrite(LED_BUILTIN, HIGH); 
     delay(250);
-    digitalWrite(LED_BUILTIN, HIGH);   
+    digitalWrite(LED_BUILTIN, LOW);   
     delay(250);
   }
   // Enables autoreconnect to wifi, in case of wifi shutdown or weak connection
@@ -102,8 +102,6 @@ void setup() {
   SetTimezone();
   
   dht.begin();
-  //Sends data immediately upon startup
-  SendPOSTData();
 }
 
 void SendPOSTData() {  
@@ -113,58 +111,50 @@ void SendPOSTData() {
   strftime(timeAsString, sizeof(timeAsString), "%Y-%m-%d %H:%M:%S", &timeinfo);
   String stringified(timeAsString);
   
-  
   humi = dht.readHumidity();// Read humidity
   temp = dht.readTemperature();// Read temperature
 
-  // Check whether the reading is successful or not
-  if ( isnan(temp) || isnan(humi)) {
-    Serial.println("Failed to read from DHT sensor!");
-    temp = -273;
-  } 
+  // Check if wifi is still connected
+  if(WiFi.status() == WL_CONNECTED){
+    WiFiClient client;
+    HTTPClient http;
+  
+    http.begin(client, apiService);
+
+    // The JSON that will be send to our api service
+    http.addHeader("Content-Type", "application/json");            
+    String httpRequestData = "{\"ipaddress\": \"" + ipAddress;
+    httpRequestData += "\", \"zone\": " + zone;
+    httpRequestData += ", \"name\": \"" + deviceName; 
+    httpRequestData += "\", \"updated\": \"" + String(timeAsString);
+    httpRequestData += "\", \"temperature\": " + String(temp);
+    httpRequestData += ", \"humidity\": " + String(humi);    
+    httpRequestData += "}"; 
+
+    // Sends the POST request
+    Serial.print(httpRequestData);
+    int httpResponseCode = http.POST(httpRequestData);
+
+    // Show the response code so we can determined if it was received by the api
+    // 400 = Error, 200 = Received
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+    Serial.println("");
+
+    http.end();
+    client.stop();
+    digitalWrite(LED_BUILTIN, HIGH); 
+    delay(50);
+    digitalWrite(LED_BUILTIN, LOW);   
+    delay(50);
+    digitalWrite(LED_BUILTIN, HIGH); 
+    delay(50);
+    digitalWrite(LED_BUILTIN, LOW);   
+    delay(50);
+  }
   else {
-    // Check if wifi is still connected
-    if(WiFi.status() == WL_CONNECTED){
-      WiFiClient client;
-      HTTPClient http;
-    
-      http.begin(client, apiService);
-
-      // The JSON that will be send to our api service
-      http.addHeader("Content-Type", "application/json");            
-      String httpRequestData = "{\"ipaddress\": \"" + ipAddress;
-      httpRequestData += "\", \"zone\": " + zone;
-      httpRequestData += ", \"name\": \"" + deviceName; 
-      httpRequestData += "\", \"updated\": \"" + String(timeAsString);
-      httpRequestData += "\", \"temperature\": " + String(temp);
-      httpRequestData += ", \"humidity\": " + String(humi);    
-      httpRequestData += "}"; 
-
-      // Sends the POST request
-      Serial.print(httpRequestData);
-      int httpResponseCode = http.POST(httpRequestData);
-
-      // Show the response code so we can determined if it was received by the api
-      // 400 = Error, 200 = Received
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
-      Serial.println("");
-
-      http.end();
-      client.stop();
-      digitalWrite(LED_BUILTIN, LOW); 
-      delay(50);
-      digitalWrite(LED_BUILTIN, HIGH);   
-      delay(50);
-      digitalWrite(LED_BUILTIN, LOW); 
-      delay(50);
-      digitalWrite(LED_BUILTIN, HIGH);   
-      delay(50);
-    }
-    else {
-      // Cancels and waits for wifi connection
-      Serial.print("Unable to connect to wifi, please wait for autoreconnect or restart the system");
-    }
+    // Cancels and waits for wifi connection
+    Serial.print("Unable to connect to wifi, please wait for autoreconnect or restart the system");
   }
   // Waits for 1 minute before scanning again
   delay(60000);
@@ -172,21 +162,27 @@ void SendPOSTData() {
 void loop() {
   // Used for comparison to old readings
   float currentTemp = dht.readTemperature();
+  
+  if ( isnan(currentTemp)) {
+    Serial.println("Failed to read from DHT sensor!");
+    digitalWrite(LED_BUILTIN, HIGH); 
+  } else {
+    digitalWrite(LED_BUILTIN, LOW); 
+    // Gets current hour and minutes (E.g. 08:00) for scheduled checks
+    getLocalTime(&timeinfo);
+    char timeAsString[5];
+    strftime(timeAsString, sizeof(timeAsString), "%H%M", &timeinfo);
+    String plannedCheck(timeAsString);
 
-  // Gets current hour and minutes (E.g. 08:00) for scheduled checks
-  getLocalTime(&timeinfo);
-  char timeAsString[5];
-  strftime(timeAsString, sizeof(timeAsString), "%H%M", &timeinfo);
-  String plannedCheck(timeAsString);
-
-  if(plannedCheck == "0158" || plannedCheck == "0159"){
-    // Daily reboot
-    delay(120000);
-    ESP.restart();
-  } else if(temp > currentTemp + 0.5 || temp < currentTemp - 0.5 
-  || plannedCheck == "0800" || plannedCheck == "1200" || plannedCheck == "1500"){
-    SendPOSTData();
+    if(plannedCheck == "0158" || plannedCheck == "0159"){
+      // Daily reboot
+      delay(120000);
+      ESP.restart();
+    } else if(temp > currentTemp + 0.5 || temp < currentTemp - 0.5 
+    || plannedCheck == "0800" || plannedCheck == "1200" || plannedCheck == "1500"){
+      SendPOSTData();
+    }
+    Serial.print('.');
   }
   delay(1000);
-  Serial.print('.');
 }
