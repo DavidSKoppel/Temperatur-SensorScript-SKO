@@ -12,10 +12,10 @@ To upload the script to the ESP you will first need to follow these steps
  2. Download the script fitting your board from this Git and open it in the IDE
  3. In the upper navigation bar click on `File`, then click on `Preferences`
  4. In Preferences there should be a field called `Additional Boards Manager URLs:`,
-    copy and paste below text to that field, and then click `OK`
+    copy and paste below links to that field, and then click `OK`
     > https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json,http://arduino.esp8266.com/stable/package_esp8266com_index.json
  5. Once more in the navigation bar, click on `Tools`, then `Board:` and then `Boards Manager...`
- 6. In Boards Manager search either esp32 or esp 8266 depending on your board, and then click Install
+ 6. In Boards Manager search either __esp32__ or __esp8266__ depending on your board, and then click Install
  7. Back in `Board:` select the appropriate board (for ESP32 I use Node32s, and for ESP8266 Boards I use LOLIN(WeMos) D1 R1)
  6. Still in the `Tools` click on `Port:` and select the port your Arduino is in
  7. Now in the navigation bar click on `Sketch`, then `Include Library`, and then `Manage Libraries...`
@@ -25,9 +25,9 @@ To upload the script to the ESP you will first need to follow these steps
 
 **Connecting Sensor**
 
-In these scripts I use pin 21 for ESP32 and pin D4 for ESP8266, feel free to change them if needed
+These scripts use pin 21 for ESP32 and pin D4 for ESP8266, feel free to change them if needed.<br/>
 The DHT22 needs to be connected to either 3V3 or 5V, ground (G), and the serial pin stated above.
 
 **Notes**
-Once it connects to the wifi, the board should send a POST request upon startup.
+Once it connects to the wifi, the board should send a POST request upon startup.<br/>
 When connecting to wifi the built in LED will blink, when sending POST request it will flicker, and when it can't read the sensor it will be lit up
