@@ -1,12 +1,12 @@
 # Arduino Temperature SensorScript
 **Preparations**
 
-To start you will need either an ESP32S or an ESP8266 as these scripts are made with them in mind.
+To start you will need either an ESP32S or an ESP8266 as these scripts are made with them in mind.<br/>
 The temperature sensor used for these scripts is the DHT22
 
 **Setup**
 
-To upload the script to the ESP you will first need to follow these steps
+To upload the script to the ESP you will first need to follow these steps:
 
  1. Download Arduino IDE from Arduino's website https://www.arduino.cc/en/software (be sure to checkmark Install USB driver and Associate .ino files in setup installation), then plug in your board
  2. Download the script fitting your board from this Git and open it in the IDE
@@ -29,5 +29,6 @@ These scripts use pin 21 for ESP32 and pin D4 for ESP8266, feel free to change t
 The DHT22 needs to be connected to either 3V3 or 5V, ground (G), and the serial pin stated above.
 
 **Notes**
+
 Once it connects to the wifi, the board should send a POST request upon startup.<br/>
 When connecting to wifi the built in LED will blink, when sending POST request it will flicker, and when it can't read the sensor it will be lit up
