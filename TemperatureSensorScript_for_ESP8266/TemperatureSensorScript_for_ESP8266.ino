@@ -15,7 +15,7 @@ DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
 //Variables
 float humi;  // Stores humidity value
 float temp = -273; // Stores temperature value, is sat at this beginning temp so it fires of immediately upon startup
-String hostName = "mu7-5";
+String hostName = "mu8-37";
 String ipAddress;
 const char* apiService = "http://infotavle.itd-skp.sde.dk/TH_API/ClimateSensor_Api/api/climateSensor/create.php";
 struct tm timeinfo; // Our constructor for localtime
