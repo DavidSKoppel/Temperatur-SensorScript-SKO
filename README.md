@@ -8,7 +8,7 @@ The temperature sensor used for these scripts is the DHT22
 
 To upload the script to the ESP you will first need to follow these steps:
 
- 1. Download Arduino IDE from Arduino's website https://www.arduino.cc/en/software (be sure to checkmark Install USB driver and Associate .ino files in setup installation), then plug in your board
+ 1. Download Arduino IDE from Arduino's website https://www.arduino.cc/en/software (I used 1.8.19 so if you're having problems try that one, be sure to checkmark Install USB driver and Associate .ino files in setup installation), then plug in your board
  2. Download the script fitting your board from this Git and open it in the IDE
  3. In the upper navigation bar click on `File`, then click on `Preferences`
  4. In Preferences there should be a field called `Additional Boards Manager URLs:`,
