@@ -84,7 +84,7 @@ void SetTimezone()
   if((mm > 3 && mm < 10) || (mm == 3 && dd >= x1) || (mm == 10 && dd < x2)){
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     if(!getLocalTime(&timeinfo)){
-      Serial.println("There was an in getting time, this could be that the NTPServer is not available, or a weak connection to the NTPServer");
+      Serial.println("There was an error in setting time zone, this could be that the NTPServer is not available, or a weak connection to the NTPServer");
       Serial.println("System will now restart");
       delay(10000);
       ESP.restart();
