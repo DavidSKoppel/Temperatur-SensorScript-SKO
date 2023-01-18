@@ -8,14 +8,14 @@ ESP8266-D1-mini for IT&Data Odense SKO
 #include <time.h>
 #include <ESP8266HTTPClient.h>
 
-#define DHTPIN 5 //(D1) what pin we're connected to, modify for different boards
+#define DHTPIN 4 //(D2) what pin we're connected to, modify for different boards
 #define DHTTYPE DHT22 // DHT 22 Sensor
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
 
 //Variables
 float humi;  // Stores humidity value
 float temp = -273; // Stores temperature value, is sat at this beginning temp so it fires of immediately upon startup
-String hostName = "mu8-37";
+String hostName = "mu7-8";
 String ipAddress;
 const char* apiService = "http://infotavle.itd-skp.sde.dk/TH_API/ClimateSensor_Api/api/climateSensor/create.php";
 struct tm timeinfo; // Our constructor for localtime
@@ -34,7 +34,8 @@ int splitPoint = hostName.indexOf('-');
 String deviceName = hostName.substring(0, splitPoint);
 String zone = hostName.substring(splitPoint + 1, hostName.length()); 
 
-bool getLocalTime(struct tm * info)
+// I use my own "getLocalTime" function since not all ESP comes with a built-in equivalent
+bool getOwnLocalTime(struct tm * info)
 {
     uint32_t start = millis();
     time_t now;
@@ -80,8 +81,8 @@ String IpAddress2String(const IPAddress& ipAddress)
 
 void SetTimezone()
 {
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("There was an in getting time, this could be that the NTPServer is not available, or a weak connection to the NTPServer");
+  if(!getOwnLocalTime(&timeinfo)){
+    Serial.println("There was an error in getting time, this could be that the NTPServer is not available, or a weak connection to the NTPServer");
     Serial.println("System will now restart");
     delay(10000);
     ESP.restart();
@@ -93,8 +94,8 @@ void SetTimezone()
   byte x2 = 31 - (yy + yy / 4 + 2) % 7; // last Sunday October
   if((mm > 3 && mm < 10) || (mm == 3 && dd >= x1) || (mm == 10 && dd < x2)){
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-    if(!getLocalTime(&timeinfo)){
-      Serial.println("There was an error in getting time, this could be that the NTPServer is not available, or a weak connection to the NTPServer");
+    if(!getOwnLocalTime(&timeinfo)){
+      Serial.println("There was an error in setting time zone, this could be that the NTPServer is not available, or a weak connection to the NTPServer");
       Serial.println("System will now restart");
       delay(10000);
       ESP.restart();
@@ -116,7 +117,7 @@ void setup() {
 
 void SendPOSTData() {  
   //Converts time to string format so it can later be used in JSON
-  getLocalTime(&timeinfo);
+  getOwnLocalTime(&timeinfo);
   char timeAsString[24];
   strftime(timeAsString, sizeof(timeAsString), "%Y-%m-%d %H:%M:%S", &timeinfo);
   String stringified(timeAsString);
@@ -176,11 +177,11 @@ void loop() {
   
   if ( isnan(currentTemp)) {
     Serial.println("Failed to read from DHT sensor!");
-    digitalWrite(LED_BUILTIN, LOW); 
+    digitalWrite(LED_BUILTIN, LOW);
   } else {
     digitalWrite(LED_BUILTIN, HIGH); 
     // Gets current hour and minutes (E.g. 08:00) for scheduled checks
-    getLocalTime(&timeinfo);
+    getOwnLocalTime(&timeinfo);
     char timeAsString[5];
     strftime(timeAsString, sizeof(timeAsString), "%H%M", &timeinfo);
     String plannedCheck(timeAsString);
