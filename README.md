@@ -25,7 +25,7 @@ To upload the script to the ESP you will first need to follow these steps:
 
 **Connecting Sensor**
 
-These scripts use pin 21 for ESP32 and pin D4 for ESP8266, feel free to change them if needed.<br/>
+These scripts use pin 21 for ESP32 and pin D2 for ESP8266, feel free to change them if needed.<br/>
 The DHT22 needs to be connected to either 3V3 or 5V, ground (G), and the serial pin stated above.
 
 **Notes**
