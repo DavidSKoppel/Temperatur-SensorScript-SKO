@@ -17,7 +17,7 @@ float humi;  // Stores humidity value
 float temp = -273; // Stores temperature value, is sat at this beginning temp so it fires of immediately upon startup
 String hostName = "mu7-5";
 String ipAddress;
-const char* apiService = "http://infotavle.itd-skp.sde.dk/TH_API/ClimateSensor_Api/api/climateSensor/create.php";
+const char* apiService = "insert api service name";
 struct tm timeinfo; // Our constructor for localtime
 
 // Our wifi and api, add password if wifi is secured
