@@ -17,7 +17,7 @@ float humi;  // Stores humidity value
 float temp = -273; // Stores temperature value, is sat at this beginning temp so it fires of immediately upon startup
 String hostName = "mu7-5";
 String ipAddress;
-const char* apiService = "insert api service name";
+const char* apiService = "insert api service name"; //the api url should be http if possible as the HTTPClient script doesn't support it otherwise
 struct tm timeinfo; // Our constructor for localtime
 
 // Our wifi and api, add password if wifi is secured
