@@ -3,7 +3,7 @@ This Temperature Sensor script was designed to be used with a
 NodeMCU-32S for IT&Data Odense SKO
 */
 
-#include <DHT.h>;
+#include <DHT.h>
 #include <WiFi.h>
 #include <time.h>
 #include <HTTPClient.h>
@@ -12,13 +12,14 @@ NodeMCU-32S for IT&Data Odense SKO
 #define DHTTYPE DHT22 // DHT 22 Sensor
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
 
-//Variables
+//Variables for api request
 float humi;  // Stores humidity value
 float temp = -273; // Stores temperature value, is sat at this beginning temp so it fires of immediately upon startup
-String hostName = "mu7-5";
+String hostName = "mu7-3";
 String ipAddress;
 const char* apiService = "insert api service name"; //the api url should be http if possible, not https, as the HTTPClient script doesn't support it otherwise
 struct tm timeinfo; // Our constructor for localtime
+bool httpErrorIndicator = false; // When there is a problem sending data to the api, we will make it blink continuously, using these
 
 // Our wifi and api, add password if wifi is secured
 const char* ssid = "Sde-Guest";
@@ -143,22 +144,33 @@ void SendPOSTData() {
 
     http.end();
     client.stop();
-    digitalWrite(LED_BUILTIN, HIGH); 
-    delay(50);
-    digitalWrite(LED_BUILTIN, LOW);   
-    delay(50);
-    digitalWrite(LED_BUILTIN, HIGH); 
-    delay(50);
-    digitalWrite(LED_BUILTIN, LOW);   
-    delay(50);
+    
+    if(httpResponseCode > 205 || httpResponseCode < 100){
+      Serial.println("An error occurred after sending data to api, ensure the api server is running, and you are sending to the right endpoint");
+      httpErrorIndicator = true;
+    } else {
+      httpErrorIndicator = false;
+
+      // indicates that the http request was sent successfully
+      digitalWrite(LED_BUILTIN, HIGH); 
+      delay(50);
+      digitalWrite(LED_BUILTIN, LOW);   
+      delay(50);
+      digitalWrite(LED_BUILTIN, HIGH); 
+      delay(50);
+      digitalWrite(LED_BUILTIN, LOW);   
+      delay(50);
+      
+      // Waits for 1 minute before scanning again
+      delay(60000);
+    }
   }
   else {
     // Cancels and waits for wifi connection
     Serial.print("Unable to connect to wifi, please wait for autoreconnect or restart the system");
   }
-  // Waits for 1 minute before scanning again
-  delay(60000);
 }
+
 void loop() {
   // Used for comparison to old readings
   float currentTemp = dht.readTemperature();
@@ -181,6 +193,26 @@ void loop() {
     } else if(temp > currentTemp + 0.5 || temp < currentTemp - 0.5 
     || plannedCheck == "0800" || plannedCheck == "1200" || plannedCheck == "1500"){
       SendPOSTData();
+    }
+    //http error loop
+    if(httpErrorIndicator)
+    {
+      int errorTime = 10;
+      bool lightState = false;
+      while(errorTime >= 0){
+        if(lightState){
+          digitalWrite(LED_BUILTIN, LOW);
+          lightState = false;
+        } else {
+          digitalWrite(LED_BUILTIN, HIGH);
+          lightState = true;
+        }
+        errorTime--;
+        delay(1000);
+      }
+      digitalWrite(LED_BUILTIN, HIGH);
+      lightState = false;
+      temp = -273;
     }
     Serial.print('.');
   }
