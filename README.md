@@ -31,4 +31,4 @@ The DHT22 needs to be connected to either 3V3 or 5V, ground (G), and the serial 
 **Notes**
 
 Once it connects to the wifi, the board should send a POST request upon startup.<br/>
-When connecting to wifi the built in LED will blink, when sending POST request it will flicker, and when it can't read the sensor it will be lit up
+When connecting to wifi the built in LED will blink, when succesfully sending POST request it will flicker, in the case it gets an http error code it will blink with a periodic tempo, and when it can't read the sensor it will be lit up
