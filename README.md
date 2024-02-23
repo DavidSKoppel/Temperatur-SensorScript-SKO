@@ -30,7 +30,7 @@ The DHT22 needs to be connected to either 3V3 or 5V, ground (G), and the serial 
 
 **Case**
 
-In this project is also the case used for the ESP8266 D1 Mini, refer to how other sensor are sat up when putting up the sensor
+In this project is also the case used for the ESP8266 D1 Mini, refer to how other sensor are sat up when putting up the sensor (feel free to use other cases, just make sure the build-in LED is always visible for you to see)
 
 **Notes**
 
