@@ -28,6 +28,10 @@ To upload the script to the ESP you will first need to follow these steps:
 These scripts use pin 21 for ESP32 and pin D2 for ESP8266, feel free to change them if needed.<br/>
 The DHT22 needs to be connected to either 3V3 or 5V, ground (G), and the serial pin stated above.
 
+**Case**
+
+In this project is also the case used for the ESP8266 D1 Mini, refer to how other sensor are sat up when putting up the sensor
+
 **Notes**
 
 Once it connects to the wifi, the board should send a POST request upon startup.<br/>
